@@ -1,0 +1,21 @@
+All dependencies not loaded, some functionality may not work
+Tensor("gen/Relu:0", shape=(32, 4, 4, 4, 512), dtype=float32) g1
+Tensor("gen/Relu_1:0", shape=(32, 8, 8, 8, 256), dtype=float32) g2
+Tensor("gen/Relu_2:0", shape=(32, 16, 16, 16, 128), dtype=float32) g3
+Tensor("gen/Relu_3:0", shape=(32, 32, 32, 32, 64), dtype=float32) g4
+Tensor("gen/Tanh:0", shape=(32, 64, 64, 64, 1), dtype=float32) g5
+Tensor("dis/Maximum:0", shape=(32, 32, 32, 32, 64), dtype=float32) d1
+Tensor("dis/Maximum_1:0", shape=(32, 16, 16, 16, 128), dtype=float32) d2
+Tensor("dis/Maximum_2:0", shape=(32, 8, 8, 8, 256), dtype=float32) d3
+Tensor("dis/Maximum_3:0", shape=(32, 4, 4, 4, 512), dtype=float32) d4
+Tensor("dis/Sigmoid:0", shape=(32, 1, 1, 1, 1), dtype=float32) d5
+Tensor("dis_1/Maximum:0", shape=(32, 32, 32, 32, 64), dtype=float32) d1
+Tensor("dis_1/Maximum_1:0", shape=(32, 16, 16, 16, 128), dtype=float32) d2
+Tensor("dis_1/Maximum_2:0", shape=(32, 8, 8, 8, 256), dtype=float32) d3
+Tensor("dis_1/Maximum_3:0", shape=(32, 4, 4, 4, 512), dtype=float32) d4
+Tensor("dis_1/Sigmoid:0", shape=(32, 1, 1, 1, 1), dtype=float32) d5
+Tensor("gen_1/Relu:0", shape=(32, 4, 4, 4, 512), dtype=float32) g1
+Tensor("gen_1/Relu_1:0", shape=(32, 8, 8, 8, 256), dtype=float32) g2
+Tensor("gen_1/Relu_2:0", shape=(32, 16, 16, 16, 128), dtype=float32) g3
+Tensor("gen_1/Relu_3:0", shape=(32, 32, 32, 32, 64), dtype=float32) g4
+Tensor("gen_1/Tanh:0", shape=(32, 64, 64, 64, 1), dtype=float32) g5
