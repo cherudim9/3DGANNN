@@ -6,7 +6,9 @@ import visdom
 import numpy as np
 import tensorflow as tf
 import dataIO as d
-import matplotlib as plt
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 from tqdm import *
 from utils import *
@@ -136,7 +138,7 @@ def trainGAN(is_dummy=False, checkpoint=None):
 
     with tf.device('/gpu:0'):
         d_output_z, d_no_sigmoid_output_z = discriminator(net_g_train, phase_train=True, reuse=True)
-        
+
     d_output_z = tf.maximum(tf.minimum(d_output_z, 0.99), 0.01)
     summary_d_z_hist = tf.summary.histogram("d_prob_z", d_output_z)
 
@@ -266,7 +268,7 @@ def testGAN(trained_model_path=None, n_batches=40):
                     voxel=np.squeeze(g_objects[id_ch[i]]>0.5)
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
-                    ax.voxels()
+                    ax.voxels(voxel,edgecolor='k')
                     plt.savefig('chair_b'+i+'_i'+j+'.png')
 
 
