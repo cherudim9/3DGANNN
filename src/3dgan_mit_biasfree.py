@@ -22,7 +22,7 @@ d_thresh   = 0.8
 z_size     = 200
 leak_value = 0.2
 cube_len   = 64
-obj_ratio  = 0.7
+obj_ratio  = 0.5
 obj        = 'chair'
 
 train_sample_directory = './train_sample/'
@@ -186,7 +186,8 @@ def trainGAN(is_dummy=False, checkpoint=None):
         else:
             volumes = d.getAll(obj=obj, train=True, is_local=is_local, obj_ratio=obj_ratio)
             print('Using ' + obj + ' Data')
-        volumes = volumes[...,np.newaxis].astype(np.float)
+        print(volumes.shape)
+        volumes = volumes.astype(np.float)[...,np.newaxis]
         # volumes *= 2.0
         # volumes -= 1.0
 
@@ -226,6 +227,7 @@ def trainGAN(is_dummy=False, checkpoint=None):
                 g_objects.dump(train_sample_directory+'/biasfree_'+str(epoch))
                 id_ch = np.random.randint(0, batch_size, 4)
                 for i in range(4):
+                    print(g_objects[id_ch[i]].max(), g_objects[id_ch[i]].min(), g_objects[id_ch[i]].shape)
                     if g_objects[id_ch[i]].max() > 0.5:
                         d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[i]]>0.5), vis, '_'.join(map(str,[epoch,i])))
             if epoch % 50 == 10:

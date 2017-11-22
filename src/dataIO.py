@@ -11,7 +11,7 @@ from mpl_toolkits import mplot3d
 
 try:
     import trimesh
-    #from stl import mesh
+    from stl import mesh
 except:
     pass
     print('All dependencies not loaded, some functionality may not work')
