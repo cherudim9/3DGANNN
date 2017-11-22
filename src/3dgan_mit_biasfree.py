@@ -6,6 +6,7 @@ import visdom
 import numpy as np
 import tensorflow as tf
 import dataIO as d
+import matplotlib as plt
 
 from tqdm import *
 from utils import *
@@ -226,10 +227,10 @@ def trainGAN(is_dummy=False, checkpoint=None):
                     os.makedirs(train_sample_directory)
                 g_objects.dump(train_sample_directory+'/biasfree_'+str(epoch))
                 id_ch = np.random.randint(0, batch_size, 4)
-                for i in range(4):
-                    print(g_objects[id_ch[i]].max(), g_objects[id_ch[i]].min(), g_objects[id_ch[i]].shape)
-                    if g_objects[id_ch[i]].max() > 0.5:
-                        d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[i]]>0.5), vis, '_'.join(map(str,[epoch,i])))
+#                for i in range(4):
+#                    print(g_objects[id_ch[i]].max(), g_objects[id_ch[i]].min(), g_objects[id_ch[i]].shape)
+#                    if g_objects[id_ch[i]].max() > 0.5:
+#                        d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[i]]>0.5), vis, '_'.join(map(str,[epoch,i])))
             if epoch % 50 == 10:
                 if not os.path.exists(model_directory):
                     os.makedirs(model_directory)
@@ -241,7 +242,7 @@ def testGAN(trained_model_path=None, n_batches=40):
     weights = initialiseWeights()
 
     z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
-    net_g_test = generator(z_vector, phase_train=True, reuse=True)
+    net_g_test = generator(z_vector, phase_train=False, reuse=True)
 
     vis = visdom.Visdom()
 
@@ -258,10 +259,16 @@ def testGAN(trained_model_path=None, n_batches=40):
             z_sample = np.random.normal(0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
             g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
             id_ch = np.random.randint(0, batch_size, 4)
-            for i in range(4):
-                print(g_objects[id_ch[i]].max(), g_objects[id_ch[i]].min(), g_objects[id_ch[i]].shape)
-                if g_objects[id_ch[i]].max() > 0.5:
-                    d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[i]]>0.5), vis, '_'.join(map(str,[i])))
+            for j in range(4):
+                print(g_objects[id_ch[j]].max(), g_objects[id_ch[j]].min(), g_objects[id_ch[j]].shape)
+                if g_objects[id_ch[j]].max() > 0.5:
+                    #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
+                    voxel=np.squeeze(g_objects[id_ch[i]]>0.5)
+                    fig = plt.figure()
+                    ax = fig.gca(projection='3d')
+                    ax.voxels()
+                    plt.savefig('chair_b'+i+'_i'+j+'.png')
+
 
 if __name__ == '__main__':
     test = bool(int(sys.argv[1]))
