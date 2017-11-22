@@ -8,6 +8,8 @@ import tensorflow as tf
 import dataIO as d
 
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from mpl_toolkits.mplot3d import Axes3D
 
 from tqdm import *
@@ -244,7 +246,7 @@ def testGAN(trained_model_path=None, n_batches=40):
     weights = initialiseWeights()
 
     z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
-    net_g_test = generator(z_vector, phase_train=False, reuse=True)
+    net_g_test = generator(z_vector, phase_train=False, reuse=tf.AUTO_REUSE)
 
     vis = visdom.Visdom()
 
@@ -257,7 +259,8 @@ def testGAN(trained_model_path=None, n_batches=40):
 
         # output generated chairs
         for i in range(n_batches):
-            next_sigma = float(raw_input())
+            print(i)
+            next_sigma = 0.33 #float(raw_input())
             z_sample = np.random.normal(0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
             g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
             id_ch = np.random.randint(0, batch_size, 4)
@@ -269,7 +272,7 @@ def testGAN(trained_model_path=None, n_batches=40):
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
                     ax.voxels(voxel,edgecolor='k')
-                    plt.savefig('chair_b'+i+'_i'+j+'.png')
+                    plt.savefig('chair_b'+str(i)+'_i'+str(j)+'.png')
 
 
 if __name__ == '__main__':
