@@ -119,52 +119,52 @@ def initialiseWeights():
 
 
 def trainGAN(is_dummy=False, checkpoint=None):
+    with tf.device('/gpu:0'):
+        weights =  initialiseWeights()
 
-    weights =  initialiseWeights()
+        z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
+        x_vector = tf.placeholder(shape=[batch_size,cube_len,cube_len,cube_len,1],dtype=tf.float32)
 
-    z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
-    x_vector = tf.placeholder(shape=[batch_size,cube_len,cube_len,cube_len,1],dtype=tf.float32)
+        net_g_train = generator(z_vector, phase_train=True, reuse=False)
 
-    net_g_train = generator(z_vector, phase_train=True, reuse=False)
-
-    d_output_x, d_no_sigmoid_output_x = discriminator(x_vector, phase_train=True, reuse=False)
-    d_output_x = tf.maximum(tf.minimum(d_output_x, 0.99), 0.01)
-    summary_d_x_hist = tf.summary.histogram("d_prob_x", d_output_x)
-
-    d_output_z, d_no_sigmoid_output_z = discriminator(net_g_train, phase_train=True, reuse=True)
-    d_output_z = tf.maximum(tf.minimum(d_output_z, 0.99), 0.01)
-    summary_d_z_hist = tf.summary.histogram("d_prob_z", d_output_z)
-
-    # Compute the discriminator accuracy
-    n_p_x = tf.reduce_sum(tf.cast(d_output_x > 0.5, tf.int32))
-    n_p_z = tf.reduce_sum(tf.cast(d_output_z < 0.5, tf.int32))
-    d_acc = tf.divide(n_p_x + n_p_z, 2 * batch_size)
-
-    # Compute the discriminator and generator loss
-    # d_loss = -tf.reduce_mean(tf.log(d_output_x) + tf.log(1-d_output_z))
-    # g_loss = -tf.reduce_mean(tf.log(d_output_z))
-
-    d_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=d_no_sigmoid_output_x, labels=tf.ones_like(d_output_x)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=d_no_sigmoid_output_z, labels=tf.zeros_like(d_output_z))
-    g_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=d_no_sigmoid_output_z, labels=tf.ones_like(d_output_z))
-
-    d_loss = tf.reduce_mean(d_loss)
-    g_loss = tf.reduce_mean(g_loss)
-
-    summary_d_loss = tf.summary.scalar("d_loss", d_loss)
-    summary_g_loss = tf.summary.scalar("g_loss", g_loss)
-    summary_n_p_z = tf.summary.scalar("n_p_z", n_p_z)
-    summary_n_p_x = tf.summary.scalar("n_p_x", n_p_x)
-    summary_d_acc = tf.summary.scalar("d_acc", d_acc)
-
-    net_g_test = generator(z_vector, phase_train=False, reuse=True)
-
-    para_g = [var for var in tf.trainable_variables() if any(x in var.name for x in ['wg', 'bg', 'gen'])]
-    para_d = [var for var in tf.trainable_variables() if any(x in var.name for x in ['wd', 'bd', 'dis'])]
-
-    # only update the weights for the discriminator network
-    optimizer_op_d = tf.train.AdamOptimizer(learning_rate=d_lr,beta1=beta).minimize(d_loss,var_list=para_d)
-    # only update the weights for the generator network
-    optimizer_op_g = tf.train.AdamOptimizer(learning_rate=g_lr,beta1=beta).minimize(g_loss,var_list=para_g)
+        d_output_x, d_no_sigmoid_output_x = discriminator(x_vector, phase_train=True, reuse=False)
+        d_output_x = tf.maximum(tf.minimum(d_output_x, 0.99), 0.01)
+        summary_d_x_hist = tf.summary.histogram("d_prob_x", d_output_x)
+        
+        d_output_z, d_no_sigmoid_output_z = discriminator(net_g_train, phase_train=True, reuse=True)
+        d_output_z = tf.maximum(tf.minimum(d_output_z, 0.99), 0.01)
+        summary_d_z_hist = tf.summary.histogram("d_prob_z", d_output_z)
+        
+        # Compute the discriminator accuracy
+        n_p_x = tf.reduce_sum(tf.cast(d_output_x > 0.5, tf.int32))
+        n_p_z = tf.reduce_sum(tf.cast(d_output_z < 0.5, tf.int32))
+        d_acc = tf.divide(n_p_x + n_p_z, 2 * batch_size)
+        
+        # Compute the discriminator and generator loss
+        # d_loss = -tf.reduce_mean(tf.log(d_output_x) + tf.log(1-d_output_z))
+        # g_loss = -tf.reduce_mean(tf.log(d_output_z))
+        
+        d_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=d_no_sigmoid_output_x, labels=tf.ones_like(d_output_x)) + tf.nn.sigmoid_cross_entropy_with_logits(logits=d_no_sigmoid_output_z, labels=tf.zeros_like(d_output_z))
+        g_loss = tf.nn.sigmoid_cross_entropy_with_logits(logits=d_no_sigmoid_output_z, labels=tf.ones_like(d_output_z))
+        
+        d_loss = tf.reduce_mean(d_loss)
+        g_loss = tf.reduce_mean(g_loss)
+        
+        summary_d_loss = tf.summary.scalar("d_loss", d_loss)
+        summary_g_loss = tf.summary.scalar("g_loss", g_loss)
+        summary_n_p_z = tf.summary.scalar("n_p_z", n_p_z)
+        summary_n_p_x = tf.summary.scalar("n_p_x", n_p_x)
+        summary_d_acc = tf.summary.scalar("d_acc", d_acc)
+        
+        net_g_test = generator(z_vector, phase_train=False, reuse=True)
+        
+        para_g = [var for var in tf.trainable_variables() if any(x in var.name for x in ['wg', 'bg', 'gen'])]
+        para_d = [var for var in tf.trainable_variables() if any(x in var.name for x in ['wd', 'bd', 'dis'])]
+        
+        # only update the weights for the discriminator network
+        optimizer_op_d = tf.train.AdamOptimizer(learning_rate=d_lr,beta1=beta).minimize(d_loss,var_list=para_d)
+        # only update the weights for the generator network
+        optimizer_op_g = tf.train.AdamOptimizer(learning_rate=g_lr,beta1=beta).minimize(g_loss,var_list=para_g)
 
     saver = tf.train.Saver()
     vis = visdom.Visdom()
