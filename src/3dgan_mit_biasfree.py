@@ -260,7 +260,7 @@ def testGAN(trained_model_path=None, n_batches=40):
         # output generated chairs
         for i in range(n_batches):
             print(i)
-            next_sigma = 0.33 #float(raw_input())
+            next_sigma = 1.0#float(raw_input())
             z_sample = np.random.normal(0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
             g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
             id_ch = np.random.randint(0, batch_size, 4)
