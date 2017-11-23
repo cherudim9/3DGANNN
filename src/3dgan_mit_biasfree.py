@@ -258,18 +258,20 @@ def testGAN(trained_model_path=None, n_batches=40):
         saver.restore(sess, trained_model_path)
 
         # output generated chairs
-        sigmas=[i*(1.0/n_batches) for i in range(1,n_batches+1)]
-        for i in range(n_batches):
+        L=10
+        sigmas=[i*(1.0/L) for i in range(1,L+1)]
+
+        for i in range(L):
             next_sigma = sigmas[i] #float(raw_input())
             print(str(i)+": "+str(next_sigma))
             z_sample = np.random.normal(0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
             g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
             id_ch = np.random.randint(0, batch_size, 4)
-            for j in range(1):
+            for j in range(4):
                 print(g_objects[id_ch[j]].max(), g_objects[id_ch[j]].min(), g_objects[id_ch[j]].shape)
                 if g_objects[id_ch[j]].max() > 0.5:
                     #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
-                    voxel=np.squeeze(g_objects[id_ch[i]]>0.5)
+                    voxel=np.squeeze(g_objects[id_ch[j]]>0.5)
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
                     ax.voxels(voxel,edgecolor='k')
