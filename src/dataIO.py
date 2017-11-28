@@ -89,7 +89,8 @@ def getAll(obj='airplane',train=True, is_local=False, cube_len=64, obj_ratio=1.0
         objPath = LOCAL_PATH + obj + '/30/'
     objPath += 'train/' if train else 'test/'
     fileList = [f for f in os.listdir(objPath) if f.endswith('.mat')]
-    fileList = fileList[0:int(obj_ratio*len(fileList))]
+    idx = np.random.randint(0, len(fileList), int(obj_ratio*len(fileList)))
+    fileList = map(lambda i: fileList[i], idx)# fileList[int(obj_ratio*len(fileList)):]
     volumeBatch = np.asarray([getVoxelFromMat(objPath + f, cube_len) for f in fileList],dtype=np.bool)
     return volumeBatch
 

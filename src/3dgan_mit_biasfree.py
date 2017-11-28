@@ -18,9 +18,9 @@ from utils import *
 '''
 Global Parameters
 '''
-n_epochs   = 10000
+n_epochs   = 20000
 batch_size = 32
-g_lr       = 0.0025
+g_lr       = 0.008
 d_lr       = 0.00001
 beta       = 0.5
 d_thresh   = 0.8
@@ -171,9 +171,11 @@ def trainGAN(is_dummy=False, checkpoint=None):
     para_d = [var for var in tf.trainable_variables() if any(x in var.name for x in ['wd', 'bd', 'dis'])]
 
     # only update the weights for the discriminator network
-    optimizer_op_d = tf.train.AdamOptimizer(learning_rate=d_lr,beta1=beta).minimize(d_loss,var_list=para_d)
+    with tf.device('/gpu:0'):
+        optimizer_op_d = tf.train.AdamOptimizer(learning_rate=d_lr,beta1=beta).minimize(d_loss,var_list=para_d)
     # only update the weights for the generator network
-    optimizer_op_g = tf.train.AdamOptimizer(learning_rate=g_lr,beta1=beta).minimize(g_loss,var_list=para_g)
+    with tf.device('/gpu:0'):
+        optimizer_op_g = tf.train.AdamOptimizer(learning_rate=g_lr,beta1=beta).minimize(g_loss,var_list=para_g)
 
     saver = tf.train.Saver()
     vis = visdom.Visdom()
@@ -192,7 +194,7 @@ def trainGAN(is_dummy=False, checkpoint=None):
             volumes = d.getAll(obj=obj, train=True, is_local=is_local, obj_ratio=obj_ratio)
             print('Using ' + obj + ' Data')
         print(volumes.shape)
-        volumes = volumes.astype(np.float)[...,np.newaxis]
+        volumes = volumes[...,np.newaxis].astype(np.float32)
         # volumes *= 2.0
         # volumes -= 1.0
 
@@ -224,8 +226,10 @@ def trainGAN(is_dummy=False, checkpoint=None):
             sess.run([optimizer_op_g],feed_dict={z_vector:z})
             print('Generator Training ', "epoch: ",epoch,', d_loss:',discriminator_loss,'g_loss:',generator_loss, "d_acc: ", d_accuracy)
 
+            del x
+
             # output generated chairs
-            if epoch % 200 == 0:
+            if epoch % 200 == 0 and False:
                 g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
                 if not os.path.exists(train_sample_directory):
                     os.makedirs(train_sample_directory)
