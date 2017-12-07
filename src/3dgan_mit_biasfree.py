@@ -20,14 +20,14 @@ Global Parameters
 '''
 n_epochs   = 20000
 batch_size = 32
-g_lr       = 0.008
+g_lr       = 0.0025
 d_lr       = 0.00001
 beta       = 0.5
 d_thresh   = 0.8
 z_size     = 200
 leak_value = 0.2
 cube_len   = 64
-obj_ratio  = 0.5
+obj_ratio  = 0.8
 obj        = 'chair'
 
 train_sample_directory = './train_sample/'
@@ -247,10 +247,12 @@ def trainGAN(is_dummy=False, checkpoint=None):
 
 def testGAN(trained_model_path=None, n_batches=40):
 
-    weights = initialiseWeights()
+    with tf.device('/gpu:0'):
 
-    z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
-    net_g_test = generator(z_vector, phase_train=True, reuse=False)
+        weights = initialiseWeights()
+
+        z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
+        net_g_test = generator(z_vector, phase_train=True, reuse=False)
 
     vis = visdom.Visdom()
 
@@ -260,6 +262,11 @@ def testGAN(trained_model_path=None, n_batches=40):
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver.restore(sess, trained_model_path)
+
+        #weights = initialiseWeights()
+
+        #z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
+        #net_g_test = generator(z_vector, phase_train=True, reuse=True)
 
         # output generated chairs
         L=10
