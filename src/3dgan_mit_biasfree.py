@@ -28,10 +28,10 @@ z_size     = 200
 leak_value = 0.2
 cube_len   = 64
 obj_ratio  = 0.8
-obj        = 'chair'
+obj        = 'sofa'
 
 train_sample_directory = './train_sample/'
-model_directory = './models/'
+model_directory = './models/'+obj+'/'
 is_local = False
 
 weights = {}
@@ -269,7 +269,7 @@ def testGAN(trained_model_path=None, n_batches=40):
         #net_g_test = generator(z_vector, phase_train=True, reuse=True)
 
         # output generated chairs
-        L=5
+        L=3
         sigmas=[i*(1.0/L) for i in range(1,L+1)]
 
         for i in range(L):
@@ -277,9 +277,10 @@ def testGAN(trained_model_path=None, n_batches=40):
             print(str(i)+": "+str(next_sigma))
             z_sample = np.random.normal(0.0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
             #np.random.normal(0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
+            print(z_sample)
             g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
             id_ch = np.random.randint(0, batch_size, 4)
-            for j in range(4):
+            for j in range(2):
                 print(g_objects[id_ch[j]].max(), g_objects[id_ch[j]].min(), g_objects[id_ch[j]].shape)
                 if g_objects[id_ch[j]].max() > 0.5:
                     #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
@@ -287,7 +288,7 @@ def testGAN(trained_model_path=None, n_batches=40):
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
                     ax.voxels(voxel,edgecolor='k')
-                    plt.savefig('chair_b'+str(i)+'_i'+str(j)+'.png')
+                    plt.savefig(obj+'_b'+str(i)+'_i'+str(j)+'.png')
 
 
 if __name__ == '__main__':
