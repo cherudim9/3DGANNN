@@ -259,12 +259,12 @@ def testGAN(trained_model_path=None, n_batches=40):
     sess = tf.Session()
     saver = tf.train.Saver()
 
-    L=3
+    L=2
     sigmas=[i*(1.0/L) for i in range(1,L+1)]
 
     z_samples=[]
     for i in range(L):
-        z_samples.append(np.random.normal(0.0, next_sigma, size=[batch_size, z_size]).astype(np.float32))
+        z_samples.append(np.random.normal(0.0, sigmas[i], size=[batch_size, z_size]).astype(np.float32))
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -277,23 +277,20 @@ def testGAN(trained_model_path=None, n_batches=40):
 
         # output generated chairs
 
-        for i in range(L):
-            next_sigma = sigmas[i] #float(raw_input())
-            print(str(i)+": "+str(next_sigma))
-            z_sample = z_samples[i]
-            #np.random.normal(0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
+        for i in range(10):
+            print(str(i))
+            a0=i*1.0/10.0+0.5
+            a1=1.0-a0
+            z_sample = z_samples[0]*a0+z_samples[1]*a1
 
             g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
-            id_ch = np.random.randint(0, batch_size, 4)
-            for j in range(2):
-                print(g_objects[id_ch[j]].max(), g_objects[id_ch[j]].min(), g_objects[id_ch[j]].shape)
-                if g_objects[id_ch[j]].max() > 0.5:
-                    #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
-                    voxel=np.squeeze(g_objects[id_ch[j]]>0.5)
-                    fig = plt.figure()
-                    ax = fig.gca(projection='3d')
-                    ax.voxels(voxel,edgecolor='k')
-                    plt.savefig(obj+'_b'+str(i)+'_i'+str(j)+'.png')
+            if g_objects[id_ch[0]].max() > 0.5:
+                #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
+                voxel=np.squeeze(g_objects[id_ch[0]]>0.5)
+                fig = plt.figure()
+                ax = fig.gca(projection='3d')
+                ax.voxels(voxel,edgecolor='k')
+                plt.savefig(obj+'_b'+str(i)+'.png')
 
 
 if __name__ == '__main__':
