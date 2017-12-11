@@ -259,6 +259,13 @@ def testGAN(trained_model_path=None, n_batches=40):
     sess = tf.Session()
     saver = tf.train.Saver()
 
+    L=3
+    sigmas=[i*(1.0/L) for i in range(1,L+1)]
+
+    z_samples=[]
+    for i in range(L):
+        z_samples.append(np.random.normal(0.0, next_sigma, size=[batch_size, z_size]).astype(np.float32))
+
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver.restore(sess, trained_model_path)
@@ -269,15 +276,13 @@ def testGAN(trained_model_path=None, n_batches=40):
         #net_g_test = generator(z_vector, phase_train=True, reuse=True)
 
         # output generated chairs
-        L=3
-        sigmas=[i*(1.0/L) for i in range(1,L+1)]
 
         for i in range(L):
             next_sigma = sigmas[i] #float(raw_input())
             print(str(i)+": "+str(next_sigma))
-            z_sample = np.random.normal(0.0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
+            z_sample = z_samples[i]
             #np.random.normal(0, next_sigma, size=[batch_size, z_size]).astype(np.float32)
-            print(z_sample)
+
             g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
             id_ch = np.random.randint(0, batch_size, 4)
             for j in range(2):
