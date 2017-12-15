@@ -19,7 +19,7 @@ from utils import *
 Global Parameters
 '''
 n_epochs   = 20000
-batch_size = 32
+batch_size = 80
 g_lr       = 0.0025
 d_lr       = 0.00001
 beta       = 0.5
@@ -28,7 +28,7 @@ z_size     = 200
 leak_value = 0.2
 cube_len   = 64
 obj_ratio  = 0.8
-obj        = 'sofa'
+obj        = 'airplane'
 
 train_sample_directory = './train_sample/'
 model_directory = './models/'+obj+'/'
@@ -277,20 +277,21 @@ def testGAN(trained_model_path=None, n_batches=40):
 
         # output generated chairs
 
-        for i in range(10):
-            print(str(i))
-            a0=i*1.0/10.0+0.5
-            a1=1.0-a0
-            z_sample = z_samples[0]*a0+z_samples[1]*a1
+        for j in range(10):
+            for i in range(10):
+                print(str(j)+" "+str(i))
+                a0=i*1.0/10.0+0.5
+                a1=1.0-a0
+                z_sample = z_samples[0]*a0+z_samples[1]*a1
 
-            g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
-            if g_objects[id_ch[0]].max() > 0.5:
-                #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
-                voxel=np.squeeze(g_objects[id_ch[0]]>0.5)
-                fig = plt.figure()
-                ax = fig.gca(projection='3d')
-                ax.voxels(voxel,edgecolor='k')
-                plt.savefig(obj+'_b'+str(i)+'.png')
+                g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
+                if g_objects[j].max() > 0.5:
+                    #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
+                    voxel=np.squeeze(g_objects[j]>0.5)
+                    fig = plt.figure()
+                    ax = fig.gca(projection='3d')
+                    ax.voxels(voxel,edgecolor='k')
+                    plt.savefig(obj+'_j'+str(j)+'_i'+str(i)+'.png')
 
 
 if __name__ == '__main__':
