@@ -259,6 +259,49 @@ def testGAN(trained_model_path=None, n_batches=40):
     sess = tf.Session()
     saver = tf.train.Saver()
 
+    L=3
+    sigmas=[i*(1.0/L) for i in range(1,L+1)]
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        saver.restore(sess, trained_model_path)
+
+        #weights = initialiseWeights()
+
+        #z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
+        #net_g_test = generator(z_vector, phase_train=True, reuse=True)
+
+        # output generated chairs
+
+        for i in range(L):
+            for j in range(5):
+                print(str(i)+" "+str(j))
+
+                z_sample = np.random.normal(0.0, sigmas[i], size=[batch_size, z_size]).astype(np.float32)
+
+                g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
+                if g_objects[j].max() > 0.5:
+                    #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
+                    voxel=np.squeeze(g_objects[j]>0.5)
+                    fig = plt.figure()
+                    ax = fig.gca(projection='3d')
+                    ax.voxels(voxel,edgecolor='k')
+                    plt.savefig(obj+'_i'+str(i)+'_j'+str(j)+'.png')
+
+def intGAN(trained_model_path=None, n_batches=40):
+
+    with tf.device('/gpu:0'):
+
+        weights = initialiseWeights()
+
+        z_vector = tf.placeholder(shape=[batch_size,z_size],dtype=tf.float32)
+        net_g_test = generator(z_vector, phase_train=True, reuse=False)
+
+    vis = visdom.Visdom()
+
+    sess = tf.Session()
+    saver = tf.train.Saver()
+
     L=2
     sigmas=[i*(1.0/L) for i in range(1,L+1)]
 
@@ -291,15 +334,18 @@ def testGAN(trained_model_path=None, n_batches=40):
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
                     ax.voxels(voxel,edgecolor='k')
-                    plt.savefig(obj+'_j'+str(j)+'_i'+str(i)+'.png')
+                    plt.savefig(obj+'_int_j'+str(j)+'_i'+str(i)+'.png')
 
 
 if __name__ == '__main__':
-    test = bool(int(sys.argv[1]))
-    if test:
+    test = int(sys.argv[1])
+    if test==1:
         path = sys.argv[2]
         testGAN(trained_model_path=path)
-    else:
+    elif test==2:
+        path = sys.argv[2]
+        intGAN(trained_model_path=path)
+    elif test==0:
         ckpt = sys.argv[2]
         if ckpt == '0':
             trainGAN(is_dummy=False, checkpoint=None)
