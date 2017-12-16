@@ -19,16 +19,16 @@ from utils import *
 Global Parameters
 '''
 n_epochs   = 20000
-batch_size = 80
+batch_size = 32
 g_lr       = 0.0025
 d_lr       = 0.00001
 beta       = 0.5
 d_thresh   = 0.8
 z_size     = 200
-leak_value = 0.2
+leak_value = 0.1
 cube_len   = 64
 obj_ratio  = 0.8
-obj        = 'airplane'
+obj        = 'chair'
 
 train_sample_directory = './train_sample/'
 model_directory = './models/'+obj+'/'
@@ -259,7 +259,7 @@ def testGAN(trained_model_path=None, n_batches=40):
     sess = tf.Session()
     saver = tf.train.Saver()
 
-    L=3
+    L=5
     sigmas=[i*(1.0/L) for i in range(1,L+1)]
 
     with tf.Session() as sess:
@@ -274,19 +274,21 @@ def testGAN(trained_model_path=None, n_batches=40):
         # output generated chairs
 
         for i in range(L):
-            for j in range(5):
+
+            z_sample = np.random.normal(0.0, sigmas[i], size=[batch_size, z_size]).astype(np.float32)
+
+            g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
+
+            for j in range(batch_size):
                 print(str(i)+" "+str(j))
 
-                z_sample = np.random.normal(0.0, sigmas[i], size=[batch_size, z_size]).astype(np.float32)
-
-                g_objects = sess.run(net_g_test,feed_dict={z_vector:z_sample})
                 if g_objects[j].max() > 0.5:
                     #d.plotVoxelVisdom(np.squeeze(g_objects[id_ch[j]]>0.5), vis, '_'.join(map(str,[j])))
                     voxel=np.squeeze(g_objects[j]>0.5)
                     fig = plt.figure()
                     ax = fig.gca(projection='3d')
                     ax.voxels(voxel,edgecolor='k')
-                    plt.savefig(obj+'_i'+str(i)+'_j'+str(j)+'.png')
+                    plt.savefig(obj+'/'+obj+'_i'+str(i)+'_j'+str(j)+'.png')
 
 def intGAN(trained_model_path=None, n_batches=40):
 
